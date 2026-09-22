@@ -1,0 +1,6 @@
+{
+  "name": "SAJAG - Personnel Welfare Intelligence",
+  "description": "AI-Powered Personnel Stress & Welfare Monitoring System for CAPF and field-forces (SIH26186, Ministry of Home Affairs).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
