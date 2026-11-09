@@ -1,151 +1,140 @@
-# SAJAG – AI-Powered Personnel Stress & Welfare Monitoring System
-
-[![SIH Problem Statement](https://img.shields.io/badge/SIH%202026-SIH26186-blue.svg)](https://www.sih.gov.in/)
-[![Organization](https://img.shields.io/badge/Ministry-Home%20Affairs-darkred.svg)](#)
-[![Theme](https://img.shields.io/badge/Theme-MedTech%20%2F%20HealthTech-emerald.svg)](#)
-[![Security](https://img.shields.io/badge/Security-Air--Gapped%20%26%20RBAC-teal.svg)](#)
-[![Tests](https://img.shields.io/badge/Tests-32%2F32%20Passed-brightgreen.svg)](#)
-
-> **Tagline**: *"Early Signals. Better Welfare. Human Action."*
+# SAJAG — Personnel Stress & Welfare Monitoring System
+**Problem Statement**: SIH26186 | **Organization**: Ministry of Home Affairs / CAPF / Armed Forces  
+**Theme**: MedTech / BioTech / Defense HealthTech  
+**Tagline**: *"Early Signals. Better Welfare. Human Action."*
 
 ---
 
-## 1. Executive Summary & SIH Problem Statement
+## 1. Executive Overview
 
-Central Armed Police Forces (CAPF) personnel operate in high-altitude outposts, counter-insurgency sectors, and isolated border postings under extreme operational strain. Traditional commercial health dashboards rely on generic population cutoffs and single-biometric alerts. In armed forces environments, **biometrics alone produce catastrophic blind spots**.
+**SAJAG** is a mission-critical, privacy-first decision support system designed to monitor and mitigate physiological strain, cumulative operational fatigue, and welfare distress across defense and paramilitary personnel (CRPF, BSF, CISF, ITBP, SSB, State Police).
 
-**SAJAG (SIH26186)** unifies three distinct operational streams into a transparent, explainable decision-support system:
-1. **Physiological Stream**: Evaluates autonomic recovery against an **individual-referenced 14-day rolling personal baseline** (Resting HR, HRV, sleep duration).
-2. **Operational Strain Stream**: Quantifies cumulative consecutive duty shifts, nocturnal patrol density, and days since sanctioned home leave.
-3. **Welfare & Grievance Stream**: Ingests voluntary check-ins and confidential welfare requests processed by an **air-gapped local NLP engine** with zero external cloud transmission.
+Unlike civilian fitness applications or black-box diagnostic models, SAJAG operates on strict **non-diagnostic decision support**:
+1. **Tri-Pillar Analytics**: Synthesizes Physiological Stress (35%), Operational Workload (35%), and Personnel Welfare (30%).
+2. **Temporal Persistence**: Distinguishes acute transient exertion (e.g., a single arduous night patrol) from chronic baseline decline (e.g., weeks of consecutive shifts without leave).
+3. **Data Sovereignty & Zero Egress**: All biometric data, operational duty logs, and grievance texts are processed locally without cloud LLM dependencies.
+4. **Role-Based Access Control (RBAC)**: Enforces cryptographic separation between Personnel, Welfare Officers, Medical Reviewers, and Unit Commanders.
 
 ---
 
-## 2. Why Single-Biometric Trackers Fail
+## 2. System Architecture
 
 ```
-Conventional Fitness Trackers:
-[ Heart Rate Normal ]  ──▶ "Soldier is 100% Fit"  ──▶ ❌ BLIND SPOT: 18 continuous duty days,
-                                                        43-day leave deficit, hospitalized parent.
-
-SAJAG Multi-Pillar Architecture:
-[ Physiological: Stable ]
-            +
-[ Operational: 18 Duty Days ]  ──▶ Multi-Pillar Convergence ──▶ 🚨 HUMAN REVIEW REQUIRED
-            +
-[ Welfare: Open Emergency ]
-```
-
----
-
-## 3. High-Level System Architecture
-
-```mermaid
-graph TD
-    subgraph Data Layer [CAPF Field Outpost / Edge Station]
-        Sensors[Wearable Telemetry - HR/HRV/Sleep] --> Baseline[14-Day Rolling Personal Baseline]
-        Roster[Duty Roster & Leave Logs] --> OpsEngine[Operational Fatigue Engine]
-        Kiosk[Confidential Welfare Intake] --> LocalNLP[Air-Gapped Local NLP Classifier]
-    end
-
-    subgraph Intelligence & Synthesis [Local Server / Edge Runtime]
-        Baseline --> Unified[Unified Risk & Attribution Engine]
-        OpsEngine --> Unified
-        LocalNLP --> Unified
-        Temporal[7-Day Temporal Trajectory Analyzer] --> Unified
-    end
-
-    subgraph Security & Access Control [Zero Cloud Egress]
-        Unified --> RBAC[Role-Based Access Control]
-        Audit[Append-Only Audit Ledger] <--> RBAC
-    end
-
-    subgraph Multi-Role Command Dashboard
-        RBAC --> CommanderView[Commander: Aggregate Readiness & Risk Heatmap]
-        RBAC --> MedView[Medical Officer: Autonomic Telemetry & Sleep Debt]
-        RBAC --> WelfareView[Welfare Officer: Case Reviews & Audited Narrative Reveal]
-        RBAC --> SoldierView[Personnel: Self-Wellbeing & Confidential Check-In]
-    end
++-----------------------------------------------------------------------------------+
+|                              DATA INGESTION LAYER                                 |
+|  - Biometric Wearables (Resting Heart Rate, Sleep Architecture, Steps, HRV)       |
+|  - Operational Rosters (Shift Density, Duty Hours, Leave Gap, Consecutive Days)   |
+|  - Voluntary Check-ins & Confidential Welfare Grievances                          |
++----------------------------------------+------------------------------------------+
+                                         |
++----------------------------------------v------------------------------------------+
+|                        TRI-PILLAR INTELLIGENCE ENGINES                            |
+|  1. Physiological Stress Engine  -> Autonomic tone, personalized rolling baseline |
+|  2. Operational Fatigue Engine   -> 7d shift density, night shifts, leave debt    |
+|  3. Welfare Sentiment Engine     -> Distress keywords, urgency classification     |
++----------------------------------------+------------------------------------------+
+                                         |
++----------------------------------------v------------------------------------------+
+|                    TEMPORAL PERSISTENCE & UNIFIED RISK SYNTHESIS                  |
+|  Composite Score = (0.35 * Phys) + (0.35 * Ops) + (0.30 * Welfare)               |
+|  States: Stable | Normal Variation | Elevated | Persistent Elevated | Review Req. |
++----------------------------------------+------------------------------------------+
+                                         |
+            +----------------------------+----------------------------+
+            |                                                         |
++-----------v----------------------------+       +--------------------v-------------+
+|    COMMAND DASHBOARD (WEB CLIENT)      |       |      FASTAPI PERSISTENT BACKEND   |
+|  - React 19 + Tailwind v4 + Vite       |       |  - SQLAlchemy ORM (SQLite/Postgres)|
+|  - Battalion heatmaps & unmasking logs |       |  - Cryptographic JWT RBAC Auth    |
+|  - Express API with air-gap fallback   |       |  - Automated 34-test verify suite |
++----------------------------------------+       +----------------------------------+
 ```
 
 ---
 
-## 4. Deterministic SIH Demo Scenarios
+## 3. Repository Structure
 
-The system includes 4 deterministic evaluation scenarios accessible via the top navigation bar:
-
-| Scenario | Personnel | Biometrics | Operational Burden | Welfare Friction | System Verdict | Recommended Action |
-|---|---|---|---|---|---|---|
-| **Scenario A** | PX-1078 | Elevated (HR +28%, HRV -41%) | Manageable | None | **Elevated Physical Strain** | Rest, hydration, light duty |
-| **Scenario B** *(Killer Demo)* | PX-1042 | **Completely Normal** (HR 64, HRV 58) | **18 consecutive days**, 5 night shifts | **Critical family emergency** | **HUMAN REVIEW REQUIRED** | Emergency leave review, roster adjustment |
-| **Scenario C** | PX-1124 | Recovering | Rotated off active shift | Resolved | **Recovering** | Continue post-rotation recovery |
-| **Scenario D** | PX-1390 | Sensor gaps (<3 days data) | Missing roster link | None | **LOW CONFIDENCE (Calibration Pending)** | Manual verification, data sync check |
+```
+SAJAG/
+├── backend/                       # Python FastAPI Persistent Backend
+│   ├── main.py                    # Application entrypoint & startup initialization
+│   ├── database.py                # SQLAlchemy ORM models & session management
+│   ├── config.py                  # Pydantic settings configuration
+│   ├── sajag_auth.py              # Cryptographic JWT & RBAC enforcement
+│   ├── sajag_models.py            # Pydantic data schemas & contracts
+│   ├── sajag_router.py            # Core REST endpoints (/api/sajag/*)
+│   ├── requirements.txt           # Python dependencies
+│   ├── services/                  # Tri-pillar intelligence engines
+│   │   ├── physiological_stress_engine.py
+│   │   ├── operational_fatigue_engine.py
+│   │   ├── welfare_nlp_service.py
+│   │   ├── welfare_risk_engine.py
+│   │   ├── sajag_risk_engine.py
+│   │   ├── dataset_adapters.py
+│   │   └── demo_scenarios.py
+│   └── tests/                     # 34-case automated test suite
+│       ├── test_sajag_database.py
+│       ├── test_sajag_rbac.py
+│       └── test_sajag_engines.py
+├── src/                           # Vite + React 19 Web Command Dashboard
+│   ├── components/                # Command Overview, Risk Cases, Audit Ledger
+│   ├── engines/                   # Client-side tri-pillar fallback engines
+│   ├── data/                      # Baseline unit datasets
+│   └── types.ts                   # Domain types and data contracts
+├── docs/                          # Comprehensive technical blueprints & audits
+│   ├── SAJAG_ARCHITECTURE.md
+│   ├── SAJAG_DATA_MODEL.md
+│   ├── SAJAG_DEMO.md
+│   ├── SAJAG_LIMITATIONS.md
+│   ├── SAJAG_MIGRATION_AUDIT.md
+│   ├── SAJAG_MIGRATION_PLAN.md
+│   ├── SAJAG_MODEL_CARD.md
+│   ├── SAJAG_SECURITY.md
+│   └── SAJAG_VALIDATION_REPORT.md
+├── server.ts                      # Express API server with JWT & audit logs
+├── package.json                   # Web application dependencies & scripts
+├── vite.config.ts                 # Vite bundler configuration
+└── pytest.ini                     # Pytest environment configuration
+```
 
 ---
 
-## 5. 3-Minute SIH Judge Demonstration
+## 4. Getting Started
 
-1. **Step 1 (Command Overview)**: View the 2D Operational vs Physiological Heatmap. Explain why a single health score is inadequate.
-2. **Step 2 (Scenario B Drilldown)**: Switch to **Scenario B (PX-1042)**. Show that biometrics are normal, but operational duty (18 days) and welfare friction trigger **Human Review Required**.
-3. **Step 3 (Waterfall Attribution)**: Demonstrate the mathematically transparent score decomposition (Operational: 45%, Welfare: 35%, Convergence Bonus: +8, Physiological: 20%).
-4. **Step 4 (Welfare Officer Action)**: Switch role to Welfare Officer, perform an **audited source text reveal**, and log a supportive **Duty Roster Adjustment**.
-5. **Step 5 (Audit Trail)**: Navigate to the **Audit Ledger** to prove that the sensitive unmasking and intervention were immutably recorded.
-6. **Step 6 (Edge Mode Check)**: Toggle **"EDGE / OFFLINE MODE"** in the header to demonstrate 100% local, air-gapped calculation capability.
-
----
-
-## 6. Key Innovations & Security Safeguards
-
-- **Strictly Non-Diagnostic**: SAJAG never diagnoses psychiatric or cardiac disease. It computes operational strain and recovery deficits.
-- **Air-Gapped Welfare NLP**: Simulates local DistilBERT categorization (Family Support, Leave, Housing, Workload, Medical, Administration) with zero external LLM dependencies.
-- **Data Minimization & RBAC**:
-  - *Commanders* see unit readiness and roster density, but cannot inspect personal biometrics or family narratives.
-  - *Medical Officers* see physiological recovery curves, but are partitioned away from domestic grievances.
-  - *Welfare Officers* see masked summaries; revealing raw text generates an immutable audit record.
-- **Explainable Attribution**: Zero unexplainable black-box AI scores. Every recommendation is decomposable into explicit drivers.
-
----
-
-## 7. Technology Stack
-
-- **Frontend**: React 19, TypeScript ~5.8, Tailwind CSS v4, Motion, Lucide React, Recharts.
-- **Backend & Serving**: Express.js 4.21, TypeScript via `tsx` (dev) and `esbuild` bundled CommonJS (production `dist/server.cjs`).
-- **Engine Architecture**: Pure TypeScript modular engines (`baselineEngine.ts`, `physiologicalEngine.ts`, `operationalEngine.ts`, `welfareEngine.ts`, `unifiedRiskEngine.ts`, `rbacEngine.ts`).
-- **Verification Suite**: Integrated automated test runner (`npm test`) validating 32 core test assertions.
-
----
-
-## 8. Local Setup & Verification
-
+### 4.1 Python FastAPI Backend
 ```bash
-# 1. Install dependencies
+cd backend
+python -m venv venv
+# Windows:
+venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
+
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+API Documentation will be live at `http://localhost:8000/docs`.
+
+### 4.2 Web Command Dashboard
+```bash
+# In project root
 npm install
+npm run dev
+```
+Access the command center at `http://localhost:3000`.
 
-# 2. Run automated test suite (32 tests)
-npm test
+### 4.3 Running Test Suite
+```bash
+# Python Backend Tests (34 test cases)
+pytest
 
-# 3. Type check & static analysis
-npm run lint
-
-# 4. Compile production build
-npm run build
-
-# 5. Launch local server (binds to http://localhost:3000)
-npm run start
+# Client Engines Test
+npm run test
 ```
 
 ---
 
-## 9. Comprehensive Documentation Suite
-
-For detailed technical specifications, refer to the `docs/` directory:
-- [Final System Audit](docs/SAJAG_FINAL_AUDIT.md)
-- [Security Review & RBAC Architecture](docs/SAJAG_SECURITY_REVIEW.md)
-- [Model Card & Technical Specs](docs/SAJAG_MODEL_CARD.md)
-- [System Architecture & Data Flow](docs/SAJAG_ARCHITECTURE.md)
-- [SIH Judge Demonstration Guide](docs/SAJAG_DEMO_GUIDE.md)
-- [Automated Test Report](docs/SAJAG_TEST_REPORT.md)
-- [System Limitations & Operational Boundaries](docs/SAJAG_LIMITATIONS.md)
-
----
-*Developed for Smart India Hackathon 2026 | Ministry of Home Affairs (SIH26186)*
+## 5. Security & Compliance
+- **Zero Cloud LLM Egress**: Confidential duty rosters and personnel grievances are never transmitted to external APIs.
+- **Audited Unmasking**: Personnel identification is masked by default for commanders; de-anonymization generates an immutable entry in `audit_logs`.
+- **Role-Based Least Privilege**: Distinct authorization barriers for `PERSONNEL`, `WELFARE_OFFICER`, `MEDICAL_REVIEWER`, and `COMMANDER`.
